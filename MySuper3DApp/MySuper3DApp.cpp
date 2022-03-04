@@ -16,7 +16,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma pack(push, 4)
-//Константный буфер
+//Константный буфер 
 struct ConstData {
 	float x;
 	float y;
