@@ -1,5 +1,7 @@
 ﻿// MySuper3DApp.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+#include <unordered_set>
+#include <iostream>
 #include <windows.h>
 #include <WinUser.h>
 #include <wrl.h>
@@ -15,9 +17,13 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
+
+
+
 #pragma pack(push, 4)
 //Константный буфер 
-struct ConstData {
+struct ConstData
+{
 	float x;
 	float y;
 	float dummy0;
@@ -25,7 +31,9 @@ struct ConstData {
 };
 #pragma pack(pop)
 
-ConstData constData = { 0, 0 };
+ConstData constData = {0,0};
+
+std::unordered_set<unsigned int> pressedKeys;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
@@ -35,11 +43,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 		//каждый раз когда клавиша нажимается передается сообщение
 	case WM_KEYDOWN:
 	{
+		auto key = static_cast<unsigned int>(wparam);
 		// If a key is pressed send it to the input object so it can record that state.
 		std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
+		pressedKeys.insert(key);
+		/*if (key == 37)
+			constData.x -= 0.01f;*/
+		
 		//если клавиша 27, то выход
 		if (static_cast<unsigned int>(wparam) == 27) PostQuitMessage(0);
 		return 0;
+	}
+	case WM_KEYUP:
+	{
+		auto key = static_cast<unsigned int>(wparam);
+		pressedKeys.erase(key);
 	}
 	default:
 	{
@@ -177,8 +195,9 @@ int main()
 
 		return 0;
 	}
-
+	//Макрос - устанавливает зеленый цвет на половину экрана
 	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
+	
 	//компиляция пиксельного шейдера
 	ID3DBlob* pixelBC;
 	ID3DBlob* errorPixelCode;
@@ -259,16 +278,8 @@ int main()
 	indexBufDesc.MiscFlags = 0;
 	indexBufDesc.StructureByteStride = 0;
 	indexBufDesc.ByteWidth = sizeof(int) * std::size(indeces);
-	////Константный буффер
-	//ID3D11Buffer* cb;
-	//D3D11_BUFFER_DESC constBufDesc = {};
-	//indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	//indexBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//indexBufDesc.CPUAccessFlags = 0;
-	//indexBufDesc.MiscFlags = 0;
-	//indexBufDesc.StructureByteStride = 0;
-	//indexBufDesc.ByteWidth = sizeof(ConstData);
-	//device->CreateBuffer(&constBufDesc, nullptr, &cb);
+
+	
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
 	indexData.pSysMem = indeces;
@@ -294,7 +305,16 @@ int main()
 
 	context->RSSetState(rastState);
 
-
+//Константный буффер
+	ID3D11Buffer* cb;
+	D3D11_BUFFER_DESC constBufDesc = {};
+	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufDesc.MiscFlags = 0;
+	constBufDesc.StructureByteStride = 0;
+	constBufDesc.ByteWidth = sizeof(ConstData);
+	device->CreateBuffer(&constBufDesc, nullptr, &cb);
 
 
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();
@@ -338,7 +358,7 @@ int main()
 		context->VSSetShader(vertexShader, nullptr, 0);
 		context->PSSetShader(pixelShader, nullptr, 0);
 
-		//context->VSSetConstantBuffers(0, 1, &cb);
+		context->VSSetConstantBuffers(0, 1, &cb);
 		//подсчет времени между кадрами и фпс
 		auto	curTime = std::chrono::steady_clock::now();
 		float	deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
@@ -358,9 +378,32 @@ int main()
 
 			frameCount = 0;
 		}
+		//обрабатывание нажатых клавиш
+		
+		if (pressedKeys.count(37)) {
+			//std::cout << "37 is working";
+				constData.x -= 0.01f;
+		}
+		if (pressedKeys.count(39))
+			constData.x += 0.01f;
+		if (pressedKeys.count(38))
+			constData.y += 0.01f;
+		if (pressedKeys.count(40))
+			constData.y -= 0.01f;
+
+		//context->UpdateSubresource(cb, 0, nullptr, &constData, 0, 0);
+		D3D11_MAPPED_SUBRESOURCE res = {};
+		context->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+
+		auto dataP = reinterpret_cast<float*>(res.pData);
+		memcpy(dataP, &constData, sizeof(ConstData));
+
+		context->Unmap(cb, 0);
+
+
 
 		context->OMSetRenderTargets(1, &rtv, nullptr);
-		//очистка бэкбуффера
+		//очистка бэкбуффера , красный цвет на фоне
 		float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
 		//функция отрисовки

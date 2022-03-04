@@ -142,6 +142,13 @@
   <ItemGroup>
     <ClCompile Include="MySuper3DApp.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Desktop\Учеба\Графика\Delegates.h" />
+    <ClInclude Include="..\..\..\..\Desktop\Учеба\Графика\InputDevice.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\..\..\..\Desktop\Учеба\Графика\Delegates.natvis" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

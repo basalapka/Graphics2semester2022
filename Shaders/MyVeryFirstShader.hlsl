@@ -10,7 +10,7 @@ struct PS_IN
  	float4 col : COLOR;
 };
 
-cbuffer MyConsrBuf: register(b0)
+cbuffer MyConstBuf : register(b0)
 {
 	float x;
 	float y;
