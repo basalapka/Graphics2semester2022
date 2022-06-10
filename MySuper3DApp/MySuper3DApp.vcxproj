@@ -140,11 +140,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DisplayWin32.cpp" />
+    <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Desktop\Учеба\Графика\Delegates.h" />
-    <ClInclude Include="..\..\..\..\Desktop\Учеба\Графика\InputDevice.h" />
+    <ClInclude Include="DisplayWin32.h" />
+    <ClInclude Include="include.h" />
+    <ClInclude Include="InputDevice.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

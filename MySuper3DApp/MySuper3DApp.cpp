@@ -1,23 +1,7 @@
 ﻿// MySuper3DApp.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-#include <unordered_set>
-#include <iostream>
-#include <windows.h>
-#include <WinUser.h>
-#include <wrl.h>
-#include <iostream>
-#include <d3d.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <directxmath.h>
-#include <chrono>
-
-//библиотеки для отрисовки
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "dxguid.lib")
-
+#include "include.h"
+#include "DisplayWin32.h"
 
 
 #pragma pack(push, 4)
@@ -33,104 +17,26 @@ struct ConstData
 
 ConstData constData = {0,0};
 
-std::unordered_set<unsigned int> pressedKeys;
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
-{
-	//проверка сообщения
-	switch (umessage)
-	{
-		//каждый раз когда клавиша нажимается передается сообщение
-	case WM_KEYDOWN:
-	{
-		auto key = static_cast<unsigned int>(wparam);
-		// If a key is pressed send it to the input object so it can record that state.
-		std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
-		pressedKeys.insert(key);
-		/*if (key == 37)
-			constData.x -= 0.01f;*/
-		
-		//если клавиша 27, то выход
-		if (static_cast<unsigned int>(wparam) == 27) PostQuitMessage(0);
-		return 0;
-	}
-	case WM_KEYUP:
-	{
-		auto key = static_cast<unsigned int>(wparam);
-		pressedKeys.erase(key);
-	}
-	default:
-	{
-		return DefWindowProc(hwnd, umessage, wparam, lparam);
-	}
-	}
-}
 int main()
 {
-	//имя класса
-	LPCWSTR applicationName = L"My3DApp";
-	HINSTANCE hInstance = GetModuleHandle(nullptr);
-
-#pragma region Window init
-    WNDCLASSEX wc;
-    //если мы изменяем размер окна, то выйдет сообщение
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	//окно получает инфу о вводе
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(nullptr, IDI_WINLOGO);
-	wc.hIconSm = wc.hIcon;
-	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
-	wc.lpszMenuName = nullptr;
-	wc.lpszClassName = applicationName;
-	wc.cbSize = sizeof(WNDCLASSEX);
-
-	// Register the window class.
-	RegisterClassEx(&wc);
-
-	//виндовс сайз = клиент сайз+рамки и т.д.
-	auto screenWidth = 800;
-	auto screenHeight = 800;
-	//функция чтобы клиент сайз был 800 на 800
-	RECT windowRect = { 0, 0, static_cast<LONG>(screenWidth), static_cast<LONG>(screenHeight) };
-	AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
-	//стиль окна
-	auto dwStyle = WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_THICKFRAME;
-	//позиция окна по середине всего экрана
-	auto posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
-	auto posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
-	//при создании окна мы получаем указатель на это окно
-	HWND hWnd = CreateWindowEx(WS_EX_APPWINDOW, applicationName, applicationName,
-		dwStyle,
-		posX, posY,
-		windowRect.right - windowRect.left,
-		windowRect.bottom - windowRect.top,
-		nullptr, nullptr, hInstance, nullptr);
-	//показ окна
-	ShowWindow(hWnd, SW_SHOW);
-	SetForegroundWindow(hWnd);
-	SetFocus(hWnd);
-
-	ShowCursor(true);
-#pragma endregion Window init
+	DisplayWin32 DW;
+	DW.DisplayWin();
 
 
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 	//свап дескриптор
 	DXGI_SWAP_CHAIN_DESC swapDesc = {};
 	swapDesc.BufferCount = 2;
-	swapDesc.BufferDesc.Width = screenWidth;
-	swapDesc.BufferDesc.Height = screenHeight;
+	swapDesc.BufferDesc.Width = DW.get_screenWidth();
+	swapDesc.BufferDesc.Height = DW.get_screenHeight();
 	swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapDesc.OutputWindow = hWnd;
+	swapDesc.OutputWindow = DW.get_hWnd();
 	swapDesc.Windowed = true;
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -190,7 +96,7 @@ int main()
 		// If there was  nothing in the error message then it simply could not find the shader file itself.
 		else
 		{
-			MessageBox(hWnd, L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(DW.get_hWnd(), L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
 		}
 
 		return 0;
@@ -269,7 +175,7 @@ int main()
 
 	ID3D11Buffer* vb;
 	device->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
-	//создание индекс буффера
+	//создание буффера
 	int indeces[] = { 0,1,2, 1,0,3 };
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -316,7 +222,7 @@ int main()
 	constBufDesc.ByteWidth = sizeof(ConstData);
 	device->CreateBuffer(&constBufDesc, nullptr, &cb);
 
-
+	//время
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();
 	float totalTime = 0;
 	unsigned int frameCount = 0;
@@ -341,8 +247,8 @@ int main()
 		context->RSSetState(rastState);
 		//где можно будет рисовать
 		D3D11_VIEWPORT viewport = {};
-		viewport.Width = static_cast<float>(screenWidth);
-		viewport.Height = static_cast<float>(screenHeight);
+		viewport.Width = static_cast<float>(DW.get_screenWidth());
+		viewport.Height = static_cast<float>(DW.get_screenHeight());
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
 		viewport.MinDepth = 0;
@@ -374,22 +280,22 @@ int main()
 
 			WCHAR text[256];
 			swprintf_s(text, TEXT("FPS: %f"), fps);
-			SetWindowText(hWnd, text);
+			SetWindowText(DW.get_hWnd(), text);
 
 			frameCount = 0;
 		}
 		//обрабатывание нажатых клавиш
 		
-		if (pressedKeys.count(37)) {
-			//std::cout << "37 is working";
-				constData.x -= 0.01f;
-		}
-		if (pressedKeys.count(39))
-			constData.x += 0.01f;
-		if (pressedKeys.count(38))
-			constData.y += 0.01f;
-		if (pressedKeys.count(40))
-			constData.y -= 0.01f;
+		//if (pressedKeys.count(37)) {
+		//	//std::cout << "37 is working";
+		//		constData.x -= 0.01f;
+		//}
+		//if (pressedKeys.count(39))
+		//	constData.x += 0.01f;
+		//if (pressedKeys.count(38))
+		//	constData.y += 0.01f;
+		//if (pressedKeys.count(40))
+		//	constData.y -= 0.01f;
 
 		//context->UpdateSubresource(cb, 0, nullptr, &constData, 0, 0);
 		D3D11_MAPPED_SUBRESOURCE res = {};
