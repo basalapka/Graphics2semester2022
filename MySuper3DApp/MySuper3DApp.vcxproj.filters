@@ -27,7 +27,4 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="..\..\..\..\Desktop\Учеба\Графика\Delegates.natvis" />
-  </ItemGroup>
 </Project>
