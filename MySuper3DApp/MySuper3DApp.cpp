@@ -20,9 +20,10 @@ ConstData constData = {0,0};
 
 int main()
 {
+	InputDevice inputDevice;
 	DisplayWin32 DW;
-	DW.DisplayWin();
-
+	inputDevice.Initialize(DW.get_hWnd());
+	DW.DisplayWin(&inputDevice);
 
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 	//свап дескриптор
