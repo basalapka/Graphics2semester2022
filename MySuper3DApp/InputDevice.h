@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include "Keys.h"
 #include "Delegates.h"
+#include "SimpleMath.h"
 
 struct MouseMoveEventArgs
 {

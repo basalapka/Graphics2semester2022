@@ -18,6 +18,7 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <DirectXColors.h>
+#include "Camera.h"
 
 //библиотеки для отрисовки
 #pragma comment(lib, "d3d11.lib")
