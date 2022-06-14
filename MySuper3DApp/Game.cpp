@@ -1,5 +1,7 @@
 #include "include.h"
 #include "Game.h"
+//#include "SimpleMath.h"
+#include "TriangleComponent.h"
 
 Game::Game() {
 	context = nullptr;
@@ -8,13 +10,16 @@ Game::Game() {
 	debug = nullptr;
 	//viewport = nullptr;
 }
-
+void Game::Initialize() {
+	CreateTriangle();
+}
 void Game::Run() {
+	Initialize();
 	inputDevice;
 	DW;
 	inputDevice.Initialize(DW.get_hWnd());
 	DW.DisplayWin(&inputDevice);
-	TC;
+	//TC;
 	int errors = PrepareResources();
 	//для каждого сообщения: нажатая кнопка становится символом
 	MSG msg = {};
@@ -24,32 +29,27 @@ void Game::Run() {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+			// If windows signals to end the application then exit out.
+			if (msg.message == WM_QUIT) {
+				isExitRequested = true;
+			}
 		}
 
-		// If windows signals to end the application then exit out.
-		if (msg.message == WM_QUIT) {
-			isExitRequested = true;
-		}
-		context->RSSetState(TC.rastState);
-		//где можно будет рисовать
-		viewport = {};
-		viewport.Width = static_cast<float>(DW.get_screenWidth());
-		viewport.Height = static_cast<float>(DW.get_screenHeight());
-		viewport.TopLeftX = 0;
-		viewport.TopLeftY = 0;
-		viewport.MinDepth = 0;
-		viewport.MaxDepth = 1.0f;
-
-		context->RSSetViewports(1, &viewport);
-		context->OMSetRenderTargets(1, &rtv, nullptr);
+		
+		//context->RSSetState(TC.rastState);
 		
 		//функция отрисовки
-		TC.Draw(context);
+		//TC.Draw(context);
 		//context->DrawIndexed(6, 0, 0);
-		context->OMSetRenderTargets(0, nullptr, nullptr);
+		//context->OMSetRenderTargets(0, nullptr, nullptr);
 		//
-		swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
+		//swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 		PrepareFrame();
+			context->RSSetViewports(1, &viewport);
+			context->OMSetRenderTargets(1, &rtv, nullptr);
+			Update();
+			Draw();
+		EndFrame();
 		//обрабатывание нажатых клавиш
 
 		//if (pressedKeys.count(37)) {
@@ -66,6 +66,7 @@ void Game::Run() {
 		//context->UpdateSubresource(cb, 0, nullptr, &constData, 0, 0);
 
 	}
+	DestroyResources();
 	//MSG msg = {};
 	//bool isExitRequested = false;
 	//while (!isExitRequested) { // Цикл до сообщения о выходе от окна или пользователя
@@ -111,10 +112,19 @@ int Game::PrepareResources() {
 	swapDesc.SampleDesc.Count = 1;
 	swapDesc.SampleDesc.Quality = 0;
 
+	//где можно будет рисовать
+	viewport = {};
+	viewport.Width = static_cast<float>(DW.get_screenWidth());
+	viewport.Height = static_cast<float>(DW.get_screenHeight());
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.MinDepth = 0;
+	viewport.MaxDepth = 1.0f;
 
-	Microsoft::WRL::ComPtr<ID3D11Device> device;
-	context;
-	swapChain;
+
+	//Microsoft::WRL::ComPtr<ID3D11Device> device;
+	//context;
+	//swapChain;
 
 
 	HRESULT res = D3D11CreateDeviceAndSwapChain(
@@ -136,7 +146,7 @@ int Game::PrepareResources() {
 
 	}
 	//TriangleComponent
-	TC.Initialize(device, DW, res);
+	//TC.Initialize(device, DW, res);
 	//указатель на Texture2D
 	ID3D11Texture2D* backTex;
 	rtv;
@@ -144,7 +154,12 @@ int Game::PrepareResources() {
 	res = device->CreateRenderTargetView(backTex, nullptr, &rtv);
 
 	//???????????????????????????????
-	context->RSSetState(TC.rastState);
+	//context->RSSetState(TC.rastState);
+
+	for (int i = 0; i < Components.size(); i++)
+	{
+		Components[i]->Initialize(device,DW, res);
+	}
 	return 0;
 }
 
@@ -207,11 +222,32 @@ void Game::EndFrame() {
 	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0); // замена переднего буфера на задний после отрисовки в задний
 }
 
-void Game::Update(int nVP) {
-
+void Game::Update() {
+	for (int i = 0; i < Components.size(); i++)
+		Components[i]->Update(context);
 }
 
 void Game::Draw() {
-
+	//TC.Draw(context);
+	for (int i = 0; i < Components.size(); i++)
+		Components[i]->Draw(context);
 }
+
+void Game::CreateTriangle() {
+	TriangleComponentParameters rect;
+	rect.numPoints = 8;
+	rect.numIndeces = 6;
+	rect.positions = new DirectX::XMFLOAT4[rect.numPoints]{
+	DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
+	DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+	DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+	DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+	};
+	rect.colors = new DirectX::XMFLOAT4[rect.numPoints];
+	for (int i = 0; i < rect.numPoints; i++)
+		rect.colors[i] = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	Components.push_back(new TriangleComponent(rect));
+	
+}
+//вершины с позицией и цветом
 

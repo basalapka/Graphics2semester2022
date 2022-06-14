@@ -124,7 +124,7 @@ int TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, D
 	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	constBufDesc.MiscFlags = 0;
 	constBufDesc.StructureByteStride = 0;
-	constBufDesc.ByteWidth = sizeof(сonstData);
+	constBufDesc.ByteWidth = sizeof(ConstData);
 	device->CreateBuffer(&constBufDesc, nullptr, &cb);
 
 
@@ -178,13 +178,6 @@ int TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, D
 		vertexBC->GetBufferPointer(),
 		vertexBC->GetBufferSize(),
 		&layout);
-	//вершины с позицией и цветом
-	DirectX::XMFLOAT4 points[8] = {
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-	};
 	//создание вершинного буффера
 	D3D11_BUFFER_DESC vertexBufDesc = {};
 	vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -192,10 +185,10 @@ int TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, D
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * std::size(points);
+	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * parameters.numPoints;
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = points;
+	vertexData.pSysMem = parameters.positions;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -277,32 +270,35 @@ void TriangleComponent::DestroyResourses() {
 		sampler->Release();
 }
 
-//void TriangleComponent::Update(ID3D11DeviceContext* context) {
-//
-//	// заполнение константного буфера
-//	constData data;
-//	data.WorldViewProj = DirectX::SimpleMath::Matrix::CreateTranslation(compPosition); // получение проекции
-//	data.WorldViewProj = data.WorldViewProj.Transpose();
-//	data.World = DirectX::SimpleMath::Matrix::CreateTranslation(parameters.compPosition);
-//	D3D11_MAPPED_SUBRESOURCE subresourse = {};
-//	
-//	
-//	context->Map( // получение указателя на ресурс и запрет доступа GPU к этому ресурсу
-//		cb,
-//		0,  // номер подресурса
-//		D3D11_MAP_WRITE_DISCARD, // получение ресурса для записи
-//		0, // D3D11_MAP_FLAG_DO_NOT_WAIT
-//		&subresourse);
-//	memcpy(
-//		reinterpret_cast<float*>(subresourse.pData), // куда
-//		&data, // откуда
-//		sizeof(constData)); // сколько байт
-//	context->Unmap(cb, 0); // вернуть доступ GPU
-//}
+void TriangleComponent::Update(ID3D11DeviceContext* context) {
+
+	// заполнение константного буфера
+
+	//if (pressedKeys.count(37)) {
+	//	//std::cout << "37 is working";
+	//	constData.x -= 0.01f;
+	//}
+	//if (pressedKeys.count(39))
+	//	constData.x += 0.01f;
+	//if (pressedKeys.count(38))
+	//	constData.y += 0.01f;
+	//if (pressedKeys.count(40))
+	//	constData.y -= 0.01f;
+
+	//context->UpdateSubresource(cb, 0, nullptr, &constData, 0, 0);
+	D3D11_MAPPED_SUBRESOURCE res = {};
+	context->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+
+	auto dataP = reinterpret_cast<float*>(res.pData);
+	memcpy(dataP, &constData, sizeof(ConstData));
+
+	context->Unmap(cb, 0);
+
+}
 
 void TriangleComponent::Draw(ID3D11DeviceContext* context) {
 	//parameters.numIndeces != 0
-	if (1 != 0)
+	if (parameters.numIndeces != 0)
 	{
 		context->IASetInputLayout(layout);
 		context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // список треугольников: задаются вершины каждого треугольника
@@ -319,7 +315,7 @@ void TriangleComponent::Draw(ID3D11DeviceContext* context) {
 		context->VSSetConstantBuffers(0, 1, &cb);
 		context->RSSetState(rastState);
 		context->DrawIndexed(
-			6, // parameters.numIndeces количество отрисовываемых индексов из буфера индексов
+			parameters.numIndeces, // parameters.numIndeces количество отрисовываемых индексов из буфера индексов
 			0, // первый индекс для отрисовки
 			0);// значение, добавляемое к каждому индексу перед чтением вершины из буфера вершин
 	}

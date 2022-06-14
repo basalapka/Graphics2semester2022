@@ -1,7 +1,6 @@
 #pragma once
 
 #include "include.h"
-
 #include "DisplayWin32.h"
 #include "GameComponent.h"
 #include "TriangleComponent.h"
@@ -19,7 +18,7 @@ private:
 	// Позволяет переходить к интересующим частям временной шкалы или понимать, какой набор вызовов Direct3D производится какими разделами кода приложения
 	ID3D11Debug* debug; // Интерфейс отладки управляет настройками отладки и проверяет состояние конвейера
 	InputDevice inputDevice;
-
+	std::vector <GameComponent*> Components; // вектор компонент (акторов)
 	TriangleComponent TC;
 
 	std::chrono::time_point<std::chrono::steady_clock> prevTime;
@@ -33,12 +32,12 @@ private:
 	void PrepareFrame();
 	void PrepareFrameViewport(int nVP);
 	void EndFrame();
-	void Update(int nVP);
+	void Update();
 	void Draw();
 	void ErrorsOutput(int ErrorCode);
 
 	void CreateGrid();
-	void CreateCube();
+	void CreateTriangle();
 	void CreatePyramid();
 	void CreateSphere();
 	void CreateCapsule();

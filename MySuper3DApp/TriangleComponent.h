@@ -1,11 +1,13 @@
 #pragma once
 #include "GameComponent.h"
 #include "include.h"
+#include "SimpleMath.h"
+
 
 struct TriangleComponentParameters {
-	DirectX::SimpleMath::Vector4* positions;
-	DirectX::SimpleMath::Vector4* colors;
-	DirectX::SimpleMath::Vector4* texcoords;
+	DirectX::XMFLOAT4* positions;
+	DirectX::XMFLOAT4* colors;
+	DirectX::XMFLOAT4* texcoords;
 	int* indeces;
 	int numPoints;
 	int numIndeces;
@@ -18,7 +20,7 @@ struct TriangleComponentParameters {
 //	DirectX::SimpleMath::Matrix WorldViewProj;
 //	DirectX::SimpleMath::Matrix World;
 //};
-struct сonstData
+struct ConstData
 {
 	float x;
 	float y;
@@ -26,14 +28,14 @@ struct сonstData
 	float dummy1;
 };
 
-class TriangleComponent{
+class TriangleComponent : public GameComponent {
 public:
 	TriangleComponentParameters parameters;
 	ID3DBlob* vertexBC; // вертекс байт код, результат компил€ции текстового файла с вертексным шейдером
 	ID3DBlob* pixelBC; // пиксель байт код, результат компил€ции текстового файла с пиксельным шейдером
 	ID3D11VertexShader* vertexShader;
 	ID3D11PixelShader* pixelShader;
-	сonstData constData;
+	ConstData constData;
 	ID3D11Buffer* vb;
 	UINT strides[4]; // шаг вершин дл€ каждого буфера
 	UINT offsets[4]; // смещение от начала дл€ каждого буфера
