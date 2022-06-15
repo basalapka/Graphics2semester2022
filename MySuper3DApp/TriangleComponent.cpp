@@ -195,19 +195,20 @@ int TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, D
 	vb;
 	device->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 	//создание буффера
-	int indeces[] = { 0,1,2, 1,0,3 };
+	//parameters.indeces = new int[6] { 0,1,2, 1,0,3 };
+	//int indeces[] = { 0,1,2, 1,0,3 };
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufDesc.CPUAccessFlags = 0;
 	indexBufDesc.MiscFlags = 0;
 	indexBufDesc.StructureByteStride = 0;
-	indexBufDesc.ByteWidth = sizeof(int) * std::size(indeces);
+	indexBufDesc.ByteWidth = sizeof(int) * parameters.numIndeces;
 
 
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indeces;
+	indexData.pSysMem = parameters.indeces;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -216,7 +217,7 @@ int TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, D
 	strides[0] = 32;
 	strides[1] = 32;
 	strides[2] = 32;
-	strides[3] = 16;
+	strides[3] = 32;
 	offsets[0] = 0;
 	offsets[1] = 0;
 	offsets[2] = 0;
@@ -270,21 +271,11 @@ void TriangleComponent::DestroyResourses() {
 		sampler->Release();
 }
 
-void TriangleComponent::Update(ID3D11DeviceContext* context) {
+void TriangleComponent::Update(ID3D11DeviceContext* context, float x, float y) {
 
-	// заполнение константного буфера
-
-	//if (pressedKeys.count(37)) {
-	//	//std::cout << "37 is working";
-	//	constData.x -= 0.01f;
-	//}
-	//if (pressedKeys.count(39))
-	//	constData.x += 0.01f;
-	//if (pressedKeys.count(38))
-	//	constData.y += 0.01f;
-	//if (pressedKeys.count(40))
-	//	constData.y -= 0.01f;
-
+	 //заполнение константного буфера
+		constData.x += x;
+		constData.x += y;
 	//context->UpdateSubresource(cb, 0, nullptr, &constData, 0, 0);
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	context->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);

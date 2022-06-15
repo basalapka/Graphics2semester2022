@@ -8,10 +8,11 @@ Game::Game() {
 	swapChain = nullptr;
 	rtv = nullptr;
 	debug = nullptr;
+	//BGcolor[] = new float[4]{ 1.0f, 0.5f, 0.1f, 1.0f };
 	//viewport = nullptr;
 }
 void Game::Initialize() {
-	CreateTriangle();
+	//CreateTriangle();
 }
 void Game::Run() {
 	Initialize();
@@ -24,6 +25,7 @@ void Game::Run() {
 	//для каждого сообщения: нажатая кнопка становится символом
 	MSG msg = {};
 	bool isExitRequested = false;
+	context->ClearRenderTargetView(rtv, BGcolor);
 	while (!isExitRequested) {
 		// Handle the windows messages.
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -162,7 +164,6 @@ int Game::PrepareResources() {
 	}
 	return 0;
 }
-
 void Game::DestroyResources() {
 	/*for (int i = 0; i < Components.size(); i++)
 		Components[i]->DestroyResourses();*/
@@ -209,8 +210,7 @@ void Game::PrepareFrame() {
 	context->ClearState();
 	//context->ClearDepthStencilView(depthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//очистка бэкбуффера , цвет на фоне
-	float color[] = { totalTime, 0.5f, 0.1f, 1.0f };
-	context->ClearRenderTargetView(rtv, color);
+	
 }
 
 //void Game::PrepareFrameViewport(int nVP) {
@@ -234,7 +234,7 @@ void Game::Draw() {
 }
 
 void Game::CreateTriangle() {
-	TriangleComponentParameters rect;
+	/*TriangleComponentParameters rect;
 	rect.numPoints = 8;
 	rect.numIndeces = 6;
 	rect.positions = new DirectX::XMFLOAT4[rect.numPoints]{
@@ -246,7 +246,7 @@ void Game::CreateTriangle() {
 	rect.colors = new DirectX::XMFLOAT4[rect.numPoints];
 	for (int i = 0; i < rect.numPoints; i++)
 		rect.colors[i] = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	Components.push_back(new TriangleComponent(rect));
+	Components.push_back(new TriangleComponent(rect));*/
 	
 }
 //вершины с позицией и цветом

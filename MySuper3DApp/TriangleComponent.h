@@ -59,7 +59,7 @@ public:
 	TriangleComponent(TriangleComponentParameters param);
 	int Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, DisplayWin32 DW, HRESULT res);
 	void DestroyResourses();
-	void Update(ID3D11DeviceContext* context);
+	void Update(ID3D11DeviceContext* context, float x, float y);
 	void Draw(ID3D11DeviceContext* context);
 };
 

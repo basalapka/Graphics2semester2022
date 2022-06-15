@@ -3,6 +3,7 @@
 #include "include.h"
 #include "DisplayWin32.h"
 #include "Game.h"
+#include "Pong.h"
 
 //#pragma pack(push, 4)
 ////Константный буфер 
@@ -20,7 +21,7 @@
 
 int main()
 {
-	Game test;
+	Pong test;
 	test.Run();
 	
 	
