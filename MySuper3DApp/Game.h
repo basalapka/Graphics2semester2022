@@ -32,7 +32,7 @@ private:
 	void PrepareFrame();
 	void PrepareFrameViewport(int nVP);
 	void EndFrame();
-	void Update();
+
 	void Draw();
 	void ErrorsOutput(int ErrorCode);
 	
@@ -43,6 +43,7 @@ public:
 	std::vector <GameComponent*> Components; // вектор компонент (акторов)
 	ID3D11DeviceContext* context; // структура, содержащая сведения об атрибутах рисования устройства, таких как экран или принтер
 	bool IsKeyDown(Keys key) { inputDevice.IsKeyDown(key); };
+	virtual void Update();
 	Game();
 	void Run();
 	void SetBackgroundColor(float* color) { BGcolor = color; };

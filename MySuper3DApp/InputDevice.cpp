@@ -41,12 +41,12 @@ void InputDevice::OnKeyDown(KeyboardInputEventArgs args) {
 		key = Keys::RightShift;
 	if (Break)
 	{
-		std::cout << "Key Up: " << args.MakeCode << " " << args.VKey << std::endl;
+		//std::cout << "Key Up: " << args.MakeCode << " " << args.VKey << std::endl;
 		RemovePressedKey(key);
 	}
 	else
 	{
-		std::cout << "Key Down: " << args.MakeCode << " " << args.VKey << std::endl;
+		//std::cout << "Key Down: " << args.MakeCode << " " << args.VKey << std::endl;
 		AddPressedKey(key);
 	}
 }
@@ -54,21 +54,21 @@ void InputDevice::OnKeyDown(KeyboardInputEventArgs args) {
 void InputDevice::OnMouseMove(RawMouseEventArgs args) {
 	if (args.ButtonFlags & static_cast<USHORT>(MouseButtonFlags::LeftButtonDown))
 	{
-		std::cout << "LeftButtonDown" << std::endl;
+		//std::cout << "LeftButtonDown" << std::endl;
 		AddPressedKey(Keys::LeftButton);
 	}
 	else
 		RemovePressedKey(Keys::LeftButton);
 	if (args.ButtonFlags & static_cast<USHORT>(MouseButtonFlags::RightButtonDown))
 	{
-		std::cout << "RightButtonDown" << std::endl;
+		//std::cout << "RightButtonDown" << std::endl;
 		AddPressedKey(Keys::RightButton);
 	}
 	else
 		RemovePressedKey(Keys::RightButton);
 	if (args.ButtonFlags & static_cast<USHORT>(MouseButtonFlags::MiddleButtonDown))
 	{
-		std::cout << "MiddleButtonDown" << std::endl;
+		//std::cout << "MiddleButtonDown" << std::endl;
 		AddPressedKey(Keys::MiddleButton);
 	}
 	else

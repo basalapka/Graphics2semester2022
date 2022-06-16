@@ -2,6 +2,7 @@
 #include "Pong.h"
 #include "Bar.h"
 #include "Keys.h"
+#include <random>
 
 Pong::Pong() {
 	PrepareComponents();
@@ -15,74 +16,124 @@ Pong::Pong() {
 }
 void Pong::PrepareComponents() {
 	ball = new Ball(this, this->PrepareCircle(0.0f, 0.0f));
+	ball->SetDirection();
 	Components.push_back(ball);
 	bar1 = new Bar(this, this->PrepareRect(0.7, 0), false);
+	bar1->setPosition(0.7, 0.0);
 	Components.push_back(bar1);
 	bar2 = new Bar(this, this->PrepareRect(-0.7, 0), true);
+	bar2->setPosition(-0.7, 0.0);
 	Components.push_back(bar2);
+}
+void Pong::PrintScore()
+{
+	std::cout << "Player Left : " << scoreLeft << "\n"
+		<< "Player Right : " << scoreRight << "\n"
+		<< std::endl;
+}
+void Pong::Reset() {
+	redLight = 15;
+	ball->constData = { 0, 0 };
+	ball->setPosition(0.0, 0.0);
+	bar1->constData = { 0, 0 };
+	bar1->setPosition(0.7, 0.0);
+	bar2->constData = { 0, 0 };
+	bar2->setPosition(-0.7, 0.0);
+	ball->SetDirection();
+	ball->speed = 1.0f;
 }
 void Pong::Run() {
 	
 	Game::Run();
 	//bar1.Update(Game::context, 0.5f, 0.5f);
 }
-//void Ball::Update() {
-//	if (game->inputDevice.IsKeyDown(Keys::W)) {
-//		std::cout << "WWWWWWW" << std::endl;
-//	};
-//}
-//void Game::Update() override {
-//
-//}
-//void Input(TriangleComponent TC) {
-//	bool a = Pong.IsKeyDown(Keys::87);
-//	if (GetKeyboardState().IsKeyDown(graph::Keys::kW)) {
-//		input_component.up = true;
-//	}
-//	if (GetKeyboardState().IsKeyDown(graph::Keys::kS)) {
-//		input_component.down = true;
-//	}
-//	break;
-//}
+void Pong::Update() {
+	if (redLight > 0) {
+		SetBackgroundColor(new float[4]{ 1.0f, 0.0f, 0.0f, 1.0f });
+		redLight -= 1;
+	}
+	if (redLight == 0) {
+		SetBackgroundColor(new float[4]{ 0.0f, 0.4f, 0.3f, 1.0f });
+		redLight -= 1;
+	}
+	//Game::context;
+	for (int i = 0; i < Components.size(); i++)
+		Components[i]->Update(Game::context);
+	if (ball->x >= 1.0 - 0.05)
+	{
+		Reset();
+		scoreLeft += 1;
+		PrintScore();
+	}
+	if (ball->x <= -1.0 + 0.05)
+	{
+		Reset();
+		scoreRight += 1;
+		PrintScore();
+	}
+	if ((((ball->x - 0.05) <= (bar1->xPos + 0.05)) && ((ball->x + 0.05) >= (bar1->xPos - 0.05)))&&
+		(((ball->y - 0.05) <= (bar1->yPos + 0.1)) && ((ball->y + 0.05) >= (bar1->yPos - 0.1)))) {
+		ball->direction.x = -ball->direction.x;
+		ball->speed += 0.1f;
+	}
+	if ((((ball->x - 0.05) <= (bar2->xPos + 0.05)) && ((ball->x + 0.05) >= (bar2->xPos - 0.05))) &&
+		(((ball->y - 0.05) <= (bar2->yPos + 0.1)) && ((ball->y + 0.05) >= (bar2->yPos - 0.1)))) {
+		ball->direction.x = -ball->direction.x;
+		ball->speed += 0.1f;
+	}
+	//std::cout << "update"<< std::endl;
+	/*if ((bar1->yPos > 0 && ball->y > 0)
+			|| (bar1->yPos < 0 && ball->y < 0)) {
+		if (((bar1->yPos > 0 && ball->y >= (bar1->yPos - 0.05 - 0.1))
+			|| (bar1->yPos < 0 && ball->y <= (bar1->yPos + -0.05 + 0.1)))
+			&& (ball->x >= (bar1->xPos - 0.05)
+				&& (ball->x <= (bar1->xPos + 0.05))))
+		{
+			ball->direction.y = -ball->direction.y;
+			ball->speed += 0.1f;
+		}
+	}*/
+}
 Bar::Bar() {
-	x = 0.0f;
-	y = 0.0f;
+	xPos = 0.0f;
+	yPos = 0.0f;
 }
 Bar::Bar(Pong* game_, TriangleComponentParameters rect, bool isLeft_) : TriangleComponent(rect), game(game_) {
-	x = 0.0f;
-	y = 0.0f;
+	xPos = 0.0f;
+	yPos = 0.0f;
 	isLeft = isLeft_;
 }
 void Bar::Update(ID3D11DeviceContext* context) {
 	//движение платформочек
 	if (isLeft == true) {
 		if (game->inputDevice.IsKeyDown(Keys::W)) {
-			if (y < 1.0-0.1) {
+			if (yPos < 1.0-0.1) {
 				constData.y += 0.05;
-				y += 0.05;
+				//yPos += 0.05;
 			}
 		};
 		if (game->inputDevice.IsKeyDown(Keys::S)) {
-			if (y > - (1.0 - 0.1)) {
+			if (yPos > - (1.0 - 0.1)) {
 				constData.y -= 0.05;
-				y -= 0.05;
+				//yPos -= 0.05;
 			}
 		};
 	}
 	else {
 		if (game->inputDevice.IsKeyDown(Keys::Up)) {
-			if (y < 1.0 - 0.1) {
+			if (yPos < 1.0 - 0.1) {
 				constData.y += 0.05;
-				y += 0.05;
+				//yPos += 0.05;
 			}
 		};
 		if (game->inputDevice.IsKeyDown(Keys::Down)) {
-			if (y > -(1.0 - 0.1)) {
+			if (yPos > -(1.0 - 0.1)) {
 				constData.y -= 0.05;
-				y -= 0.05;
+				//yPos -= 0.05;
 			}
 		};
 	}
+	yPos = constData.y;
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	context->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 
@@ -91,18 +142,59 @@ void Bar::Update(ID3D11DeviceContext* context) {
 
 	context->Unmap(cb, 0);
 }
-//Ball::Ball() : game(*my_nul) {
-//	x = 0.0f;
-//	y = 0.0f;
-//}
 Ball::Ball(Pong* game_, TriangleComponentParameters circle): TriangleComponent(circle), game(game_) {
 	x = 0.0f;
 	y = 0.0f;
 
 }
-void Ball::Update(ID3D11DeviceContext* context) {
-	
+void Ball::SetDirection()
+{
+	std::random_device rd;
+	std::mt19937 rng(rd());
+	std::uniform_int_distribution<int> uni(0, 539);
+
+	auto angle = uni(rng);
+
+	direction.x = sin(angle) * initialSpeed;
+	direction.y = cos(angle) * initialSpeed;
+	direction.z = 0;
 }
+void Ball::Update(ID3D11DeviceContext* context) {
+	x += direction.x*speed;
+	y += direction.y*speed;
+
+
+	if (y >= 1.0f - radius)
+	{
+		speed += 0.1f;
+		direction.y = -direction.y;
+	}
+	if (y <= -1.0f + radius)
+	{
+		speed += 0.1f;
+		direction.y = -direction.y;
+	}
+	constData.x = x;
+	constData.y = y;
+	D3D11_MAPPED_SUBRESOURCE res = {};
+	context->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+
+	auto dataP = reinterpret_cast<float*>(res.pData);
+	memcpy(dataP, &constData, sizeof(ConstData));
+
+	context->Unmap(cb, 0);
+}
+
+
+
+
+
+
+
+
+
+
+
 //COMPONENTS
 TriangleComponentParameters Pong::PrepareCircle(float xOff, float yOff) {
 	float radius = 0.05f;
