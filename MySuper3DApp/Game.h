@@ -11,13 +11,13 @@ private:
 	DisplayWin32 DW;
 	D3D11_VIEWPORT viewport; // размеры вьюпорта
 	int numVP; // количество вьюпортов
-	ID3D11DeviceContext* context; // структура, содержащая сведения об атрибутах рисования устройства, таких как экран или принтер
+	
 	// Все вызовы рисования выполняются через объект контекста устройства, который инкапсулирует интерфейсы.
 	IDXGISwapChain* swapChain; // свапчейн (цепочка подкачки)
 	ID3D11RenderTargetView* rtv; // целевой объект рендеринга
 	// Позволяет переходить к интересующим частям временной шкалы или понимать, какой набор вызовов Direct3D производится какими разделами кода приложения
 	ID3D11Debug* debug; // Интерфейс отладки управляет настройками отладки и проверяет состояние конвейера
-	InputDevice inputDevice;
+	
 	
 	TriangleComponent TC;
 
@@ -35,17 +35,15 @@ private:
 	void Update();
 	void Draw();
 	void ErrorsOutput(int ErrorCode);
-
-	void CreateGrid();
-	void CreateTriangle();
-	void CreatePyramid();
-	void CreateSphere();
-	void CreateCapsule();
+	InputDevice inputDevice;
+	float* BGcolor;
 
 public:
 	std::vector <GameComponent*> Components; // вектор компонент (акторов)
-	float BGcolor[4];
+	ID3D11DeviceContext* context; // структура, содержащая сведения об атрибутах рисования устройства, таких как экран или принтер
+	bool IsKeyDown(Keys key) { inputDevice.IsKeyDown(key); };
 	Game();
 	void Run();
+	void SetBackgroundColor(float* color) { BGcolor = color; };
 };
 

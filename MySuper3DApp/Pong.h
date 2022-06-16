@@ -1,10 +1,19 @@
 #pragma once
 #include "Game.h"
 #include "include.h"
-class Ball : public TriangleComponent {
-private:
+
+struct Velocity{
 	float x;
 	float y;
+};
+
+class Ball : public TriangleComponent {
+private:
+	float radius;
+	float speed;
+	float x;
+	float y;
+	Velocity velocity;
 public:
 	//Ball();
 	TriangleComponentParameters Initialize(float x, float y);
@@ -30,6 +39,7 @@ private:
 	int GetScore();
 	float velocity;
 	void Update();
+	void Inpput(TriangleComponent TC);
 	//void SetBackground(ID3D11DeviceContext* context, ID3D11RenderTargetView* rtv);
 public:
 	Pong();

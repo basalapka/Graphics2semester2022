@@ -35,7 +35,7 @@ public:
 	ID3DBlob* pixelBC; // пиксель байт код, результат компиляции текстового файла с пиксельным шейдером
 	ID3D11VertexShader* vertexShader;
 	ID3D11PixelShader* pixelShader;
-	ConstData constData;
+	ConstData constData; //Константный буфер
 	ID3D11Buffer* vb;
 	UINT strides[4]; // шаг вершин для каждого буфера
 	UINT offsets[4]; // смещение от начала для каждого буфера
