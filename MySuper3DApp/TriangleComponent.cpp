@@ -271,11 +271,11 @@ void TriangleComponent::DestroyResourses() {
 		sampler->Release();
 }
 
-void TriangleComponent::Update(ID3D11DeviceContext* context, float x, float y) {
-
-	 //заполнение константного буфера
-		constData.x += x;
-		constData.x += y;
+void TriangleComponent::Update(ID3D11DeviceContext* context) {
+	//std::cout << "asdasf" << std::endl;
+	 ////заполнение константного буфера
+		//constData.x += x;
+		//constData.x += y;
 	//context->UpdateSubresource(cb, 0, nullptr, &constData, 0, 0);
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	context->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);

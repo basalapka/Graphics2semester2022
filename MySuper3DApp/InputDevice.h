@@ -57,12 +57,13 @@ struct ScreenSize {
 class InputDevice {
 private:
 	HWND hWnd;
-	std::unordered_set<Keys>* keys;
+	
 	MouseMoveEventArgs MouseParam;
 	ScreenSize ScreenParam;
 	void AddPressedKey(Keys key);
 	void RemovePressedKey(Keys key);
 public:
+	std::unordered_set<Keys>* keys;
 	InputDevice();
 	~InputDevice();
 	void Initialize(HWND handle);

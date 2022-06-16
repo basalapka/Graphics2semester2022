@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bar.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Delegates.cpp" />
     <ClCompile Include="DisplayWin32.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bar.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Delegates.h" />
     <ClInclude Include="DisplayWin32.h" />

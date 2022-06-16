@@ -42,6 +42,9 @@
     <ClCompile Include="Pong.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Bar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisplayWin32.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Pong.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

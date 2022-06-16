@@ -35,10 +35,11 @@ private:
 	void Update();
 	void Draw();
 	void ErrorsOutput(int ErrorCode);
-	InputDevice inputDevice;
+	
 	float* BGcolor;
 
 public:
+	InputDevice inputDevice;
 	std::vector <GameComponent*> Components; // вектор компонент (акторов)
 	ID3D11DeviceContext* context; // структура, содержащая сведения об атрибутах рисования устройства, таких как экран или принтер
 	bool IsKeyDown(Keys key) { inputDevice.IsKeyDown(key); };

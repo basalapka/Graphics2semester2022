@@ -223,13 +223,13 @@ void Game::EndFrame() {
 }
 
 void Game::Update() {
-	context->ClearRenderTargetView(rtv, BGcolor);
 	for (int i = 0; i < Components.size(); i++)
 		Components[i]->Update(context);
 }
 
 void Game::Draw() {
 	//TC.Draw(context);
+	context->ClearRenderTargetView(rtv, BGcolor);
 	for (int i = 0; i < Components.size(); i++)
 		Components[i]->Draw(context);
 }
