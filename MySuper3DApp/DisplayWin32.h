@@ -9,10 +9,10 @@ private:
 	HINSTANCE hInstance; // дескриптор приложения
 	HWND hWnd; // дексриптор окна
 	WNDCLASSEX wc; // информация о классе окна
-	int screenWidth; // ширина окна
-	int screenHeight; // высота окна
-	int posX; // позиция окна по ширине экрана
-	int posY; // позиция окна по высоте экрана
+	int screenWidth;
+	int screenHeight;
+	int posX;
+	int posY;
 public:
 	HWND get_hWnd() { return hWnd; };
 	int get_screenWidth() { return screenWidth; };

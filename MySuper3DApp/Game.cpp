@@ -1,6 +1,5 @@
 #include "include.h"
 #include "Game.h"
-//#include "SimpleMath.h"
 #include "TriangleComponent.h"
 
 Game::Game() {
@@ -9,15 +8,12 @@ Game::Game() {
 	rtv = nullptr;
 	debug = nullptr;	
 	BGcolor = new float[4]{ 0.0f,0.0f, 0.0f, 0.0f };
-	//viewport = nullptr;
 }
 void Game::Initialize() {
-	//CreateTriangle();
+
 }
 void Game::Run() {
 	Initialize();
-	/*inputDevice;
-	DW;*/
 	inputDevice.Initialize(DW.get_hWnd());
 	DW.DisplayWin(&inputDevice);
 	//TC;
@@ -25,6 +21,8 @@ void Game::Run() {
 	//для каждого сообщения: нажатая кнопка становится символом
 	MSG msg = {};
 	bool isExitRequested = false;
+	camera.push_back(new Camera);
+	camera.back()->Initialize(DirectX::SimpleMath::Vector3(0.0f, 0.5f, 2.0f), (1.57 / 2), (1.57 / 2), DW.get_screenWidth(), DW.get_screenHeight(), &inputDevice);
 
 	while (!isExitRequested) {
 		// Handle the windows messages.
@@ -36,10 +34,7 @@ void Game::Run() {
 				isExitRequested = true;
 			}
 		}
-
-		
 		//context->RSSetState(TC.rastState);
-		
 		//функция отрисовки
 		//TC.Draw(context);
 		//context->DrawIndexed(6, 0, 0);
@@ -51,47 +46,10 @@ void Game::Run() {
 			context->OMSetRenderTargets(1, &rtv, nullptr);
 			Update();
 			Draw();
-		EndFrame();
-		//обрабатывание нажатых клавиш
-
-		//if (pressedKeys.count(37)) {
-		//	//std::cout << "37 is working";
-		//		constData.x -= 0.01f;
-		//}
-		//if (pressedKeys.count(39))
-		//	constData.x += 0.01f;
-		//if (pressedKeys.count(38))
-		//	constData.y += 0.01f;
-		//if (pressedKeys.count(40))
-		//	constData.y -= 0.01f;
-
-		//context->UpdateSubresource(cb, 0, nullptr, &constData, 0, 0);
+		swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 
 	}
 	DestroyResources();
-	//MSG msg = {};
-	//bool isExitRequested = false;
-	//while (!isExitRequested) { // Цикл до сообщения о выходе от окна или пользователя
-	//	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) { // Неблокирующий ввод
-	//		TranslateMessage(&msg); // Перевод нажатия клавиш в символы
-	//		DispatchMessage(&msg); // Обработка сообщения
-	//		if (msg.message == WM_QUIT) { // Если было получено сообщение о выходе, в цикл больше входить не надо
-	//			isExitRequested = true;
-	//		}
-	//	}
-	//	if (errors == 0)
-	//	{
-	//		PrepareFrame();
-	//		for (int i = 0; i < numVP; i++)
-	//		{
-	//			PrepareFrameViewport(i);
-	//			Update(i);
-	//			Draw();
-	//		}
-	//		EndFrame();
-	//	}
-	//}
-	//DestroyResources();
 }
 
 int Game::PrepareResources() {
@@ -123,12 +81,6 @@ int Game::PrepareResources() {
 	viewport.MinDepth = 0;
 	viewport.MaxDepth = 1.0f;
 
-
-	//Microsoft::WRL::ComPtr<ID3D11Device> device;
-	//context;
-	//swapChain;
-
-
 	HRESULT res = D3D11CreateDeviceAndSwapChain(
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -145,7 +97,7 @@ int Game::PrepareResources() {
 	//если девайс не создан
 	if (FAILED(res))
 	{
-
+		std::cout << "Девайс не создан :(" << std::endl;
 	}
 	//TriangleComponent
 	//TC.Initialize(device, DW, res);
@@ -155,9 +107,6 @@ int Game::PrepareResources() {
 	res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backTex);	// __uuidof(ID3D11Texture2D) либо айди 
 	res = device->CreateRenderTargetView(backTex, nullptr, &rtv);
 
-	//???????????????????????????????
-	//context->RSSetState(TC.rastState);
-
 	for (int i = 0; i < Components.size(); i++)
 	{
 		Components[i]->Initialize(device,DW, res);
@@ -165,8 +114,8 @@ int Game::PrepareResources() {
 	return 0;
 }
 void Game::DestroyResources() {
-	/*for (int i = 0; i < Components.size(); i++)
-		Components[i]->DestroyResourses();*/
+	for (int i = 0; i < Components.size(); i++)
+		Components[i]->DestroyResourses();
 	//КОМПОНЕНТЫ СЮДА
 	if (context != nullptr)
 	{
@@ -175,14 +124,6 @@ void Game::DestroyResources() {
 	}
 	if (swapChain != nullptr)
 		swapChain->Release();
-	//if (rtv != nullptr)
-	//{
-	//	for (int i = 0; i < numVP; i++)
-	//	{
-	//		if (rtv[i] != nullptr)
-	//			rtv[i]->Release();
-	//	}
-	//}
 	if (device != nullptr)
 		device->Release();
 	if (debug != nullptr)
@@ -213,18 +154,10 @@ void Game::PrepareFrame() {
 	
 }
 
-//void Game::PrepareFrameViewport(int nVP) {
-//	//context->OMSetRenderTargets(1, &rtv[nVP], depthView); // привязка рендер таргета и буфера глубин к заднему буферу
-//	context->RSSetViewports(1, &viewport[nVP]);
-//}
-
-void Game::EndFrame() {
-	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0); // замена переднего буфера на задний после отрисовки в задний
-}
-
 void Game::Update() {
+	camera.at(0)->Update(deltaTime, DW.get_screenWidth(), DW.get_screenHeight());
 	for (int i = 0; i < Components.size(); i++)
-		Components[i]->Update(context);
+		Components[i]->Update(context, camera.at(0));
 }
 
 void Game::Draw() {
@@ -238,17 +171,12 @@ void Game::Draw() {
 	/*TriangleComponentParameters rect;
 	rect.numPoints = 8;
 	rect.numIndeces = 6;
-	rect.positions = new DirectX::XMFLOAT4[rect.numPoints]{
+	rect.points = new DirectX::XMFLOAT4[rect.numPoints]{
 	DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
 	DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
 	DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
 	DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
 	};
-	rect.colors = new DirectX::XMFLOAT4[rect.numPoints];
-	for (int i = 0; i < rect.numPoints; i++)
-		rect.colors[i] = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	Components.push_back(new TriangleComponent(rect));*/
-	
-//}
-//вершины с позицией и цветом
+
 

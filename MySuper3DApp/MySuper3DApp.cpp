@@ -4,6 +4,7 @@
 #include "DisplayWin32.h"
 #include "Game.h"
 #include "Pong.h"
+#include "SolarSystem.h"
 
 //#pragma pack(push, 4)
 ////Константный буфер 
@@ -21,8 +22,10 @@
 
 int main()
 {
-	Pong test;
-	test.Run();
+	/*Pong test;
+	test.Run();*/
+	SolarSystem SS;
+	SS.Run();
 	
 	
 }

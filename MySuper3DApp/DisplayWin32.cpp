@@ -124,14 +124,14 @@ void DisplayWin32::DisplayWin(InputDevice* iDev) {
 		nullptr, // дескриптор родительского окна
 		nullptr, // дексриптор меню
 		hInstance, // дескриптор приложения
-		iDev); // указатель на обработчик ввода (не обязательный параметр, пользовательские данные)
+		iDev); // указатель на обработчик ввода
 	//показ окна
 	ShowWindow(hWnd, SW_SHOW);
-	SetForegroundWindow(hWnd); // Переводит поток, который создал окно, в приоритетный режим
-	SetFocus(hWnd); // Устанавливает фокус клавиатуры на окно
+	SetForegroundWindow(hWnd);
+	SetFocus(hWnd);
 
 	ShowCursor(true);
-	iDev->ChangeScreenSize.AddRaw(this, &DisplayWin32::OnChangeScreenSize);
+	//iDev->ChangeScreenSize.AddRaw(this, &DisplayWin32::OnChangeScreenSize);
 #pragma endregion Window init
 }
 void DisplayWin32::OnChangeScreenSize(const ScreenSize& args) {
