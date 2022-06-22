@@ -9,7 +9,7 @@ void Camera::Initialize(DirectX::SimpleMath::Vector3 pos, float yaw, float pitch
 		((float)PI) / 2.0f, // угол поля зрения по оси y (в радианах)
 		(float)screenWidth / screenHeight, // соотношение сторон изображения(ширина / высота)
 		0.1f, // расстояние до ближней плоскости отсечки
-		10000.0f); // расстояние до дальней плоскости отсечки
+		100.0f); // расстояние до дальней плоскости отсечки
 	Yaw = yaw;
 	Pitch = pitch;
 	position = pos;
@@ -27,7 +27,7 @@ void Camera::Update(float deltaTime, int screenWidth, int screenHeight) {
 		if (inputDevice->IsKeyDown(Keys::D)) velDirection += DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f);
 
 		if (inputDevice->IsKeyDown(Keys::Space)) velDirection += DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
-		if (inputDevice->IsKeyDown(Keys::C)) velDirection += DirectX::SimpleMath::Vector3(0.0f, -1.0f, 0.0f);
+		if (inputDevice->IsKeyDown(Keys::Q)) velDirection += DirectX::SimpleMath::Vector3(0.0f, -1.0f, 0.0f);
 
 		velDirection.Normalize();
 
@@ -42,7 +42,7 @@ void Camera::Update(float deltaTime, int screenWidth, int screenHeight) {
 		(float)PI / 2.0f, // угол поля зрения по оси y (в радианах)
 		(float)screenWidth / screenHeight, // соотношение сторон изображения(ширина / высота)
 		0.1f, // расстояние до ближней плоскости отсечки
-		10000.0f); // расстояние до дальней плоскости отсечки
+		100.0f); // расстояние до дальней плоскости отсечки
 }
 
 void Camera::OnMouseMove(const MouseMoveEventArgs& args) {

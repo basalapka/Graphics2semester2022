@@ -5,11 +5,6 @@ struct VS_IN
 	// tex : TEXCOORD;
 	float4 normal : NORMAL;
 };
-cbuffer  Matrixes : register(b0)
-{
-	matrix mat;
-};
-
 struct LightData
 {
 	float4 Direction;
@@ -35,16 +30,33 @@ struct PS_IN
 	float4 worldPos : TEXCOORD1;
 	float4 normal :NORMAL;
 };
+struct ConstantData
+{
+	float4x4 WorldViewProj;
+	float4x4 World;
+};
+
+cbuffer ConstBuf:register(b0)
+{
+	ConstantData ConstData;
+};
 
 PS_IN VSMain(VS_IN input)
 {
+	//PS_IN output = (PS_IN)0;
+
+	//output.pos = mul(input.pos, mat);
+	//output.col = input.col;
+	////output.normal = mul(float4(input.normal.xyz, 1.0f), invert(mat));;
+	//output.normal = input.normal;
+
+	//return output;
+
 	PS_IN output = (PS_IN)0;
-
-	output.pos = mul(input.pos, mat);
+	output.pos = mul(float4(input.pos.xyz, 1.0f), ConstData.WorldViewProj);
+	output.worldPos = mul(float4(input.pos.xyz, 1.0f), ConstData.World);
 	output.col = input.col;
-	//output.normal = mul(float4(input.normal.xyz, 1.0f), ConstData.World);;
-	output.normal = input.normal;
-
+	output.normal = mul(float4(input.normal.xyz, 1.0f), ConstData.World);;
 	return output;
 }
 
@@ -73,9 +85,13 @@ float4 PSMain(PS_IN input) : SV_Target
 	float3 refVec = normalize(reflect(LightDir, normal));
 
 	float3 ambient = color.xyz * 0.5;
+	/*const float diff = max(0.0, dot(-LightDir, normal));
+	const float3 diffuse = diff * Lights.Color.xyz;*/
 	float3 diffuse = saturate(dot(LightDir, normal)) * color.xyz;
-	float3 specular = pow(saturate(dot(-viewDir, refVec)), 0.7) * 0.3;
+	//float3 specular = pow(saturate(dot(-viewDir, refVec)), 0.7) * 0.3;
+	float spec = pow(max(0.0, dot(viewDir, refVec)), 0.7);
+	float3 specular = 0.3 * spec * Lights.Color.xyz;
 
 	return float4(Lights.Color.xyz * (ambient + diffuse + specular), 1.0f);
-  return color;
+  //return color;
 }

@@ -8,6 +8,14 @@ TriangleComponent::TriangleComponent() {
 	parameters.numIndeces = 0;
 	compPosition = DirectX::SimpleMath::Vector3(0, 0, 0);
 
+	parent = nullptr;
+	isCatch = false;
+	localEuler = { 0.0f, 0.0f, 0.0f };
+	localScale = { 1.0f, 1.0f, 1.0f };
+	localPosition = { 0.0f, 0.0f, 0.0f };
+	offset = { 0.0f, 0.0f, 0.0f };
+	radius=1.0f;
+
 	normals = nullptr;
 	vertexBC = nullptr;
 	pixelBC = nullptr;
@@ -32,6 +40,14 @@ TriangleComponent::TriangleComponent(TriangleComponentParameters param) {
 	parameters.numPoints = param.numPoints;
 	parameters.numIndeces = param.numIndeces;
 	compPosition = param.compPosition;
+
+	parent = nullptr;
+	isCatch = false;
+	localEuler = { 0.0f, 0.0f, 0.0f }; //в градусах
+	localScale = { 1.0f, 1.0f, 1.0f };
+	localPosition = { 0.0f, 0.0f, 0.0f };
+	offset = { 0.0f, 0.0f, 0.0f };
+	radius = 1.0f;
 
 	vertexBC = nullptr;
 	pixelBC = nullptr;
@@ -168,20 +184,9 @@ int TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, D
 
 	DirectX::XMFLOAT4* pointsNormals = new DirectX::XMFLOAT4 [size];
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-//	int temp = 0;
-//	for (int i = 0; i < parameters.numPoints; i += 2) {
-//		pointsNormals[i] = parameters.points[i]; //вершина
-//		pointsNormals[i+1] = parameters.points[i+1]; //цвет
-//		//pointsNormals[i+2] = normals[temp]; //нормаль
-//		temp++;
-//		//std::cout << "x:" << pointsNormals[i+2].x << "y:"<< pointsNormals[i+2].y << "z:" << pointsNormals[i+2].z << std::endl;
-//	}
-//	for (int i = 0; i < 72; i += 1) {
-//	std::cout << "x:" << pointsNormals[i].x << "y:" << pointsNormals[i].y << "z:" << pointsNormals[i].z << std::endl;
-//}
 	int temp = 0;
-int temp1 = 0;
-for (int i = 0; i < parameters.numPoints / 2 * 3; i += 3) {
+	int temp1 = 0;
+	for (int i = 0; i < size; i += 3) {
 	pointsNormals[i] = parameters.points[temp1]; //вершина
 	pointsNormals[i + 1] = parameters.points[temp1 + 1]; //цвет
 	temp1 += 2;
@@ -257,7 +262,8 @@ void TriangleComponent::DestroyResourses() {
 
 void TriangleComponent::Update(ID3D11DeviceContext* context, Camera* camera) {
 	ConstData data;
-	data.WorldViewProj = DirectX::SimpleMath::Matrix::CreateTranslation(compPosition) * camera->ViewMatrix * camera->ProjectionMatrix; // получение проекции
+	//data.WorldViewProj = DirectX::SimpleMath::Matrix::CreateTranslation(compPosition) * camera->ViewMatrix * camera->ProjectionMatrix; // получение проекции
+	data.WorldViewProj = GetModelMatrix() * camera->ViewMatrix * camera->ProjectionMatrix;
 	data.WorldViewProj = data.WorldViewProj.Transpose();
 	data.World = DirectX::SimpleMath::Matrix::CreateTranslation(parameters.compPosition);
 	D3D11_MAPPED_SUBRESOURCE subresourse = {};
@@ -270,15 +276,14 @@ void TriangleComponent::Update(ID3D11DeviceContext* context, Camera* camera) {
 	memcpy(
 		reinterpret_cast<float*>(subresourse.pData), // куда
 		&data, // откуда
-		sizeof(constData)); // сколько бай
+		sizeof(constData)); // сколько байt
 
 	context->Unmap(cb, 0);
 
 	// заполнения константного буфера для света
 	lightData light;
 	light.ViewerPos = DirectX::SimpleMath::Vector4(camera->position.x, camera->position.y, camera->position.z, 1.0f);
-	light.Direction = DirectX::SimpleMath::Vector4(0.0f, 10.0f, 0.0f, 1.0f); //свет сверху - т.к. ось У - это верх-вниз
-	//light.Direction = DirectX::SimpleMath::Vector4(-10.0f, 10.0f, -10.0f, 1.0f);;
+	light.Direction = DirectX::SimpleMath::Vector4(0.0f, 10.0f, 6.0f, 1.0f); //свет сверху - т.к. ось У - это верх-вниз
 	light.Color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	D3D11_MAPPED_SUBRESOURCE subresourse2 = {};
 	context->Map( // получение указателя на ресурс и запрет доступа GPU к этому ресурсу
@@ -361,4 +366,22 @@ void TriangleComponent::NormalsCalc() {
 		normals[ind_b] = norm;
 		normals[ind_c] = norm;
 	};
+}
+
+//афинные преобразование и все что с ними связано:
+
+DirectX::SimpleMath::Matrix TriangleComponent::GetModelMatrix()
+{
+	using namespace DirectX::SimpleMath;
+	Matrix model = Matrix::Identity;
+	model *= Matrix::CreateScale(localScale);
+	model *= Matrix::CreateFromYawPitchRoll(localEuler * DirectX::XM_PI / 180);
+	model *= Matrix::CreateTranslation(localPosition);
+
+	if (parent != nullptr)
+	{
+		model *= parent->GetModelMatrix();
+	}
+
+	return model;
 }

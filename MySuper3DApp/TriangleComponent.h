@@ -26,6 +26,19 @@ struct lightData {
 };
 class TriangleComponent : public GameComponent {
 public:
+	TriangleComponent* parent;
+
+	bool isCatch;
+
+	DirectX::SimpleMath::Vector3 localEuler;
+	DirectX::SimpleMath::Vector3 localScale;
+	DirectX::SimpleMath::Vector3 localPosition;
+
+	DirectX::SimpleMath::Vector3 offset;
+	float radius;
+	DirectX::SimpleMath::Matrix GetModelMatrix();
+
+
 	TriangleComponentParameters parameters;
 	ID3DBlob* vertexBC;
 	ID3DBlob* pixelBC;
