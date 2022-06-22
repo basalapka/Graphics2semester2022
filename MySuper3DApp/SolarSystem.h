@@ -13,5 +13,6 @@ public:
 	SolarSystem();
 	//void Update() override;
 	void Run();
+	void CreateSphere();
 };
 

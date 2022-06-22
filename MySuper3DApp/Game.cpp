@@ -8,6 +8,8 @@ Game::Game() {
 	rtv = nullptr;
 	debug = nullptr;	
 	BGcolor = new float[4]{ 0.0f,0.0f, 0.0f, 0.0f };
+	depthBuffer = nullptr;
+	depthView = nullptr;
 }
 void Game::Initialize() {
 
@@ -43,7 +45,8 @@ void Game::Run() {
 		//swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 		PrepareFrame();
 			context->RSSetViewports(1, &viewport);
-			context->OMSetRenderTargets(1, &rtv, nullptr);
+			context->OMSetRenderTargets(1, &rtv, depthView); // привязка рендер таргета и буфера глубин к заднему буферу
+			//context->OMSetRenderTargets(1, &rtv, nullptr);
 			Update();
 			Draw();
 		swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
@@ -99,6 +102,27 @@ int Game::PrepareResources() {
 	{
 		std::cout << "Девайс не создан :(" << std::endl;
 	}
+
+	D3D11_TEXTURE2D_DESC depthTexDesc = {};
+	depthTexDesc.ArraySize = 1; // количество текстур в массиве текстур
+	depthTexDesc.MipLevels = 1; // максимальное количество уровней MIP - карты в текстуре
+	depthTexDesc.Format = DXGI_FORMAT_R32_TYPELESS; // однокомпонентный 32-битный безтиповый формат, поддерживающий 32 бита для красного канала
+	depthTexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL; // привязка к шейдеру и буферу глубин
+	depthTexDesc.CPUAccessFlags = 0; // доступ к ЦП не требуется
+	depthTexDesc.MiscFlags = 0; // дополнительные флаги
+	depthTexDesc.Usage = D3D11_USAGE_DEFAULT; // способ чтения и записи текстуры
+	depthTexDesc.Width = DW.get_screenWidth();
+	depthTexDesc.Height = DW.get_screenHeight();
+	depthTexDesc.SampleDesc = { 1, 0 }; // структура, определяющая параметры мультисэмплинга для текстуры (количество мультисэмплов на пиксель, качество изображения)
+	res = device->CreateTexture2D(&depthTexDesc, nullptr, &depthBuffer);
+
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStenDesc = {};
+	depthStenDesc.Format = DXGI_FORMAT_D32_FLOAT; // однокомпонентный 32-битный формат с плавающей запятой, поддерживающий 32-битную глубину
+	depthStenDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; // как будет осуществляться доступ к ресурсу трафарета глубины
+	depthStenDesc.Flags = 0;
+	res = device->CreateDepthStencilView(depthBuffer, &depthStenDesc, &depthView);
+
 	//TriangleComponent
 	//TC.Initialize(device, DW, res);
 	//указатель на Texture2D
@@ -128,6 +152,10 @@ void Game::DestroyResources() {
 		device->Release();
 	if (debug != nullptr)
 		debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	if (depthBuffer)
+		depthBuffer->Release();
+	if (depthView != nullptr)
+		depthView->Release();
 }
 
 void Game::PrepareFrame() {
@@ -149,7 +177,7 @@ void Game::PrepareFrame() {
 		frameCount = 0;
 	}
 	context->ClearState();
-	//context->ClearDepthStencilView(depthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearDepthStencilView(depthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//очистка бэкбуффера , цвет на фоне
 	
 }

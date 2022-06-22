@@ -18,6 +18,8 @@ private:
 	float deltaTime;
 	float totalTime = 0;
 	unsigned int frameCount = 0;
+	ID3D11Texture2D* depthBuffer;
+	ID3D11DepthStencilView* depthView;
 
 	void Initialize();
 	int PrepareResources();

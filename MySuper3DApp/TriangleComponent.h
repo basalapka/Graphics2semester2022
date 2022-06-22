@@ -18,7 +18,12 @@ struct ConstData
 	DirectX::SimpleMath::Matrix WorldViewProj;
 	DirectX::SimpleMath::Matrix World;
 };
-
+struct lightData {
+	DirectX::SimpleMath::Vector4 Direction;
+	DirectX::SimpleMath::Vector4 Color;
+	DirectX::SimpleMath::Vector4 ViewerPos;
+	//DirectX::SimpleMath::Vector4 normals;
+};
 class TriangleComponent : public GameComponent {
 public:
 	TriangleComponentParameters parameters;
@@ -33,7 +38,11 @@ public:
 	ID3D11Buffer* ib;
 	ID3D11BlendState* blend;
 	ID3D11Buffer* cb;
+	ID3D11Buffer* lightBuf;
 	ID3D11SamplerState* sampler;
+	DirectX::SimpleMath::Vector4* normals; // вектор нормалей
+	void NormalsCalc();
+	ID3D11Buffer* vBuffers[4];
 
 public:
 	ID3D11RasterizerState* rastState;
