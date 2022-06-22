@@ -11,8 +11,17 @@ private:
 	//void SetBackground(ID3D11DeviceContext* context, ID3D11RenderTargetView* rtv);
 public:
 	SolarSystem();
+	TriangleComponent* Sun;
+	TriangleComponent* Mercury;
+	TriangleComponent* Venus;
+	TriangleComponent* Mars;
+	TriangleComponent* Phobos;
+	TriangleComponent* Earth;
 	//void Update() override;
 	void Run();
-	void CreateSphere();
+	void Update() override;
+	TriangleComponent CreateSphere(float r, DirectX::SimpleMath::Vector4 mainColor, DirectX::SimpleMath::Vector4 color);
+	TriangleComponentParameters CreateCube();
+	float angle = 0;
 };
 

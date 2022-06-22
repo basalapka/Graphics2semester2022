@@ -6,7 +6,7 @@
 #include "TriangleComponent.h"
 
 class Game {
-private:
+public:
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	DisplayWin32 DW;
 	D3D11_VIEWPORT viewport; 
