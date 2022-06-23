@@ -21,7 +21,8 @@ public:
 	void Run();
 	void Update() override;
 	TriangleComponent CreateSphere(float r, DirectX::SimpleMath::Vector4 mainColor, DirectX::SimpleMath::Vector4 color);
-	TriangleComponentParameters CreateCube();
+	TriangleComponent CreateCube();
+	std::vector <TriangleComponent*> Asteroids;
 	float angle = 0;
 };
 

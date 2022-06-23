@@ -60,7 +60,7 @@ TriangleComponent::TriangleComponent(TriangleComponentParameters param) {
 	lightBuf = nullptr;
 	rastState = nullptr;
 	normals = new DirectX::SimpleMath::Vector4[parameters.numPoints/2];
-	NormalsCalc(); // считаем нормали для освещения
+	NormalsCalc(); // нормали для освещения
 
 	for (int i = 0; i < 4; i++)
 		strides[i] = 32;
@@ -181,7 +181,6 @@ int TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, D
 	vertexBufDesc.StructureByteStride = 0;
 	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * (size);
 
-
 	DirectX::XMFLOAT4* pointsNormals = new DirectX::XMFLOAT4 [size];
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	int temp = 0;
@@ -261,11 +260,11 @@ void TriangleComponent::DestroyResourses() {
 }
 
 void TriangleComponent::Update(ID3D11DeviceContext* context, Camera* camera) {
-	ConstData data;
 	//data.WorldViewProj = DirectX::SimpleMath::Matrix::CreateTranslation(compPosition) * camera->ViewMatrix * camera->ProjectionMatrix; // получение проекции
 	data.WorldViewProj = GetModelMatrix() * camera->ViewMatrix * camera->ProjectionMatrix;
 	data.WorldViewProj = data.WorldViewProj.Transpose();
-	data.World = DirectX::SimpleMath::Matrix::CreateTranslation(parameters.compPosition);
+	data.World = GetModelMatrix().Transpose();
+	data.invertedWorldTransform = GetModelMatrix().Transpose().Invert().Transpose();
 	D3D11_MAPPED_SUBRESOURCE subresourse = {};
 	context->Map( // получение указателя на ресурс и запрет доступа GPU к этому ресурсу
 		cb,
@@ -279,12 +278,14 @@ void TriangleComponent::Update(ID3D11DeviceContext* context, Camera* camera) {
 		sizeof(constData)); // сколько байt
 
 	context->Unmap(cb, 0);
-
+	/*if (a > 0 && a<1) { a += 0.01; }
+	if (a < 0 && a < 1) { a -= 0.01; }*/
+	/*std::cout << a;*/
 	// заполнения константного буфера для света
-	lightData light;
 	light.ViewerPos = DirectX::SimpleMath::Vector4(camera->position.x, camera->position.y, camera->position.z, 1.0f);
 	light.Direction = DirectX::SimpleMath::Vector4(0.0f, 10.0f, 6.0f, 1.0f); //свет сверху - т.к. ось У - это верх-вниз
-	light.Color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	light.Color = DirectX::SimpleMath::Vector4(1, 1, 1, 1.0f);
+	//light.normals = normals[0];
 	D3D11_MAPPED_SUBRESOURCE subresourse2 = {};
 	context->Map( // получение указателя на ресурс и запрет доступа GPU к этому ресурсу
 		lightBuf,
@@ -297,6 +298,7 @@ void TriangleComponent::Update(ID3D11DeviceContext* context, Camera* camera) {
 		&light, // откуда
 		sizeof(lightData)); // сколько байт
 	context->Unmap(lightBuf, 0); // вернуть доступ GPU
+
 
 }
 

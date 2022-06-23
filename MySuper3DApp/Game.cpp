@@ -24,7 +24,7 @@ void Game::Run() {
 	MSG msg = {};
 	bool isExitRequested = false;
 	camera.push_back(new Camera);
-	camera.back()->Initialize(DirectX::SimpleMath::Vector3(0.0f, 0.5f, 2.0f), (1.57 / 2), (1.57 / 2), DW.get_screenWidth(), DW.get_screenHeight(), &inputDevice);
+	camera.back()->Initialize(DirectX::SimpleMath::Vector3(0.0f, 10.0f, 2.0f), (1.57 / 2), (1.57 / 2), DW.get_screenWidth(), DW.get_screenHeight(), &inputDevice);
 
 	while (!isExitRequested) {
 		// Handle the windows messages.

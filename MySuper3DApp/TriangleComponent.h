@@ -17,6 +17,7 @@ struct ConstData
 	float y;*/
 	DirectX::SimpleMath::Matrix WorldViewProj;
 	DirectX::SimpleMath::Matrix World;
+	DirectX::SimpleMath::Matrix invertedWorldTransform;
 };
 struct lightData {
 	DirectX::SimpleMath::Vector4 Direction;
@@ -29,6 +30,9 @@ public:
 	TriangleComponent* parent;
 
 	bool isCatch;
+	lightData light;
+	ConstData data;
+	float a = 0;
 
 	DirectX::SimpleMath::Vector3 localEuler;
 	DirectX::SimpleMath::Vector3 localScale;

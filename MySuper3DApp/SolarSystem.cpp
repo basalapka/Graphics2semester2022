@@ -35,6 +35,22 @@ void SolarSystem::Initialize() {
 	Earth->parent = Sun;
 	Earth->localPosition = { 30.0, 0.0, 0.0, 0.0 };
 	Components.push_back((Earth));
+
+	std::random_device rd;
+	std::mt19937 rng(rd());
+	std::uniform_int_distribution<int> uni(0, 10);
+
+	
+	//Малый пояс астероидов
+	for (int angle = 5; angle < 360; angle += 5) {
+		float asteroidPos = uni(rng);
+		TriangleComponent* Asteroid = new TriangleComponent(CreateCube());
+		Asteroid->parent = Sun;
+		Asteroid->localScale = { 0.5, 0.5, 0.5, 1.0 };
+		Asteroid->localPosition = { static_cast<float>(cos(angle)*70) + asteroidPos, 0.0,static_cast<float>(sin(angle)) * 70, 0.0};
+		Asteroids.push_back(Asteroid);
+		Components.push_back(Asteroid);
+	}
 }
 void SolarSystem::Run() {
 	Game::Run();
@@ -43,7 +59,7 @@ void SolarSystem::Update() {
 	Game::camera.at(0)->Update(Game::deltaTime, Game::DW.get_screenWidth(), Game::DW.get_screenHeight());
 	/*for (int i = 0; i < Components.size(); i++)
 		Components[i]->Update(context, Game::camera.at(0));*/
-	angle += 0.5;
+	angle += 0.2;
 	Sun->localEuler = { 0, angle, 0 };
 	Sun->Update(Game::context, Game::camera.at(0));
 
@@ -66,8 +82,13 @@ void SolarSystem::Update() {
 	Earth->localEuler = { angle, angle, 0 };
 	Earth->Update(Game::context, Game::camera.at(0));
 
+	for (int i = 0; i < Asteroids.size(); i++) {
+		Asteroids[i]->localEuler = { angle, angle, 0 };
+		Asteroids[i]->Update(Game::context, Game::camera.at(0));
+	}
+
 }
-TriangleComponentParameters SolarSystem::CreateCube() {
+TriangleComponent SolarSystem::CreateCube() {
 	TriangleComponentParameters cube;
 	cube.numPoints = 48;
 	cube.numIndeces = 36;
@@ -133,7 +154,7 @@ TriangleComponentParameters SolarSystem::CreateCube() {
 			16, 19, 18,
 			20, 21, 22, // правая грань
 			22, 23, 20 };
-	
+	TriangleComponent Cube1(cube);
 	return cube;
 }
 TriangleComponent SolarSystem::CreateSphere(float r, DirectX::SimpleMath::Vector4 mainColor, DirectX::SimpleMath::Vector4 color) {
